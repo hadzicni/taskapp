@@ -62,8 +62,12 @@ public class RegisterView extends VerticalLayout {
      * @return a Div containing the registration form
      */
     private Div buildRegisterCard() {
-        H2 title = new H2("Registrierung");
-        title.getStyle().set("font-size", "2em").set("color", "#007bff").set("margin-bottom", "10px");
+        H2 title = new H2("Registrieren");
+        title.getStyle()
+                .set("font-size", "2em")
+                .set("font-weight", "600")
+                .set("color", "#2c3e50")
+                .set("margin-bottom", "20px");
 
         TextField firstNameField = new TextField("Vorname");
         TextField lastNameField = new TextField("Nachname");
@@ -76,6 +80,8 @@ public class RegisterView extends VerticalLayout {
 
         HorizontalLayout nameLayout = new HorizontalLayout(firstNameField, lastNameField);
         nameLayout.setWidthFull();
+        nameLayout.setSpacing(true);
+        nameLayout.getStyle().set("gap", "16px");
 
         Button registerButton = createRegisterButton(firstNameField, lastNameField, usernameField, emailField);
         Anchor loginLink = createLoginLink();
@@ -89,18 +95,35 @@ public class RegisterView extends VerticalLayout {
                 confirmPasswordField.getValue()
         ));
 
-        Div card = new Div(title, nameLayout, usernameField, emailField, passwordField,
-                lengthRequirement, numberRequirement, specialCharRequirement, passwordStrengthBar,
-                confirmPasswordField, registerButton, loginLink);
+        VerticalLayout passwordFeedback = new VerticalLayout(lengthRequirement, numberRequirement, specialCharRequirement, passwordStrengthBar);
+        passwordFeedback.setPadding(false);
+        passwordFeedback.setSpacing(false);
+        passwordFeedback.getStyle().set("margin-bottom", "10px");
 
+        VerticalLayout fieldsLayout = new VerticalLayout(
+                nameLayout,
+                usernameField,
+                emailField,
+                passwordField,
+                passwordFeedback,
+                confirmPasswordField,
+                registerButton,
+                loginLink
+        );
+        fieldsLayout.setSpacing(false);
+        fieldsLayout.setPadding(false);
+        fieldsLayout.setWidthFull();
+        fieldsLayout.getStyle().set("gap", "12px");
+
+        Div card = new Div(title, fieldsLayout);
         card.getStyle()
                 .set("background", "#ffffff")
-                .set("padding", "30px")
-                .set("border-radius", "12px")
-                .set("box-shadow", "0px 4px 10px rgba(0, 0, 0, 0.1)")
-                .set("text-align", "center")
-                .set("max-width", "400px")
-                .set("width", "100%");
+                .set("padding", "36px")
+                .set("border-radius", "16px")
+                .set("box-shadow", "0 4px 20px rgba(0, 0, 0, 0.06)")
+                .set("max-width", "460px")
+                .set("width", "100%")
+                .set("text-align", "left");
 
         return card;
     }

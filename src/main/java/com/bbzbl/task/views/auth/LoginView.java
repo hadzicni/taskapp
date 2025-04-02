@@ -71,41 +71,54 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
     private Div buildLoginCard() {
         H2 title = new H2("Willkommen zurück");
         title.getStyle()
-                .set("font-size", "2em")
-                .set("color", "#007bff")
-                .set("margin-bottom", "10px");
+                .set("font-size", "2.2em")
+                .set("font-weight", "600")
+                .set("color", "#2c3e50")
+                .set("margin-bottom", "12px");
 
         Span subtitle = new Span("Bitte melden Sie sich mit Ihrem Account an.");
         subtitle.getStyle()
                 .set("font-size", "1.1em")
-                .set("color", "#555");
+                .set("color", "#555")
+                .set("margin-bottom", "20px")
+                .set("display", "block");
 
         loginForm.setAction("login");
         loginForm.setForgotPasswordButtonVisible(false);
-        loginForm.getStyle().set("margin-bottom", "10px");
+        loginForm.getStyle()
+                .set("width", "100%")
+                .set("max-width", "320px")
+                .set("margin", "0 auto")
+                .set("margin-bottom", "10px");
 
-        Anchor registerLink = new Anchor("/register", "Noch keinen Account? Hier registrieren");
+        Anchor registerLink = new Anchor("/register", "Noch keinen Account? Jetzt registrieren");
         registerLink.getStyle()
                 .set("display", "block")
-                .set("margin-top", "6px")
+                .set("margin-top", "12px")
                 .set("color", "#007bff")
                 .set("font-size", "1em")
                 .set("text-decoration", "none")
-                .set("transition", "0.3s");
+                .set("transition", "color 0.3s");
 
         registerLink.getElement().setAttribute("onmouseover", "this.style.color='#0056b3'");
         registerLink.getElement().setAttribute("onmouseout", "this.style.color='#007bff'");
 
-        Div loginCard = new Div(title, subtitle, loginForm, registerLink);
-        loginCard.getStyle()
+        VerticalLayout layout = new VerticalLayout(title, subtitle, loginForm, registerLink);
+        layout.setPadding(false);
+        layout.setSpacing(false);
+        layout.setAlignItems(Alignment.CENTER);
+        layout.setWidthFull();
+
+        Div card = new Div(layout);
+        card.getStyle()
                 .set("background", "#ffffff")
-                .set("padding", "30px")
-                .set("border-radius", "12px")
-                .set("box-shadow", "0px 4px 10px rgba(0, 0, 0, 0.1)")
+                .set("padding", "36px")
+                .set("border-radius", "16px")
+                .set("box-shadow", "0 4px 20px rgba(0, 0, 0, 0.06)")
                 .set("text-align", "center")
-                .set("max-width", "400px")
+                .set("max-width", "420px")
                 .set("width", "100%");
 
-        return loginCard;
+        return card;
     }
 }

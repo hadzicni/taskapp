@@ -3,6 +3,7 @@ package com.bbzbl.task.views.user;
 import com.bbzbl.task.data.entity.User;
 import com.bbzbl.task.services.UserService;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
@@ -26,7 +27,7 @@ import java.util.Optional;
  * Profile view for displaying and editing user information.
  */
 @PermitAll
-@PageTitle("Profil | Task Manager")
+@PageTitle("Profil")
 @Route("profile")
 public class ProfileView extends VerticalLayout {
 
@@ -46,60 +47,53 @@ public class ProfileView extends VerticalLayout {
         setSizeFull();
         setJustifyContentMode(JustifyContentMode.CENTER);
         setAlignItems(Alignment.CENTER);
-        getStyle().set("background", "linear-gradient(to right, #eef2f3, #dfe9f3)");
+        getStyle().set("background", "linear-gradient(to right, #f0f4f8, #dfe9f3)");
 
         H2 title = new H2("Mein Profil");
         title.getStyle()
-                .set("font-size", "2em")
-                .set("color", "#007bff")
-                .set("margin-bottom", "10px");
+                .set("font-size", "2.2em")
+                .set("font-weight", "600")
+                .set("color", "#2c3e50")
+                .set("margin-bottom", "20px");
 
         TextField firstNameField = new TextField("Vorname");
-        firstNameField.setWidthFull();
         TextField lastNameField = new TextField("Nachname");
-        lastNameField.setWidthFull();
         TextField usernameField = new TextField("Benutzername");
-        usernameField.setWidthFull();
         EmailField emailField = new EmailField("E-Mail");
+
+        firstNameField.setWidthFull();
+        lastNameField.setWidthFull();
+        usernameField.setWidthFull();
         emailField.setWidthFull();
 
         HorizontalLayout nameLayout = new HorizontalLayout(firstNameField, lastNameField);
         nameLayout.setWidthFull();
         nameLayout.setSpacing(true);
+        nameLayout.getStyle().set("gap", "20px");
 
-        Button saveButton = new Button("Speichern");
+        Button saveButton = new Button("Änderungen speichern");
+        saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         saveButton.getStyle()
-                .set("background", "#007bff")
-                .set("color", "white")
-                .set("padding", "10px 20px")
-                .set("border-radius", "8px")
-                .set("font-weight", "bold")
-                .set("transition", "0.3s");
+                .set("padding", "10px 24px")
+                .set("border-radius", "8px");
 
         Button deleteUserButton = new Button("Benutzer löschen");
+        deleteUserButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
         deleteUserButton.getStyle()
-                .set("background", "#dc3545")
-                .set("color", "white")
-                .set("padding", "10px 20px")
-                .set("border-radius", "8px")
-                .set("font-weight", "bold")
-                .set("transition", "0.3s")
-                .set("margin-top", "5px");
+                .set("padding", "10px 24px")
+                .set("border-radius", "8px");
 
-        Span changePasswordLink = new Span("Passwort ändern");
+        Span changePasswordLink = new Span("🔒 Passwort ändern");
         changePasswordLink.getStyle()
                 .set("display", "block")
-                .set("margin-top", "8px")
-                .set("color", "#6c757d")
-                .set("font-size", "0.9em")
-                .set("text-decoration", "none")
-                .set("cursor", "pointer");
+                .set("margin-top", "12px")
+                .set("color", "#007bff")
+                .set("font-size", "0.95em")
+                .set("cursor", "pointer")
+                .set("text-decoration", "underline");
 
-        changePasswordLink.getElement().setAttribute("onmouseover", "this.style.color='#007bff'");
-        changePasswordLink.getElement().setAttribute("onmouseout", "this.style.color='#6c757d'");
-
-        changePasswordLink.addClickListener(event -> openPasswordDialog());
-        deleteUserButton.addClickListener(event -> openDeleteUserDialog());
+        changePasswordLink.addClickListener(e -> openPasswordDialog());
+        deleteUserButton.addClickListener(e -> openDeleteUserDialog());
 
         loadCurrentUser();
 
@@ -108,27 +102,29 @@ public class ProfileView extends VerticalLayout {
         binder.bind(lastNameField, User::getLastName, User::setLastName);
         binder.bind(emailField, User::getEmail, User::setEmail);
 
-        saveButton.addClickListener(event -> saveUser());
+        saveButton.addClickListener(e -> saveUser());
 
-        Div profileCard = new Div();
-        profileCard.getStyle()
-                .set("background", "#ffffff")
-                .set("padding", "30px")
-                .set("border-radius", "12px")
-                .set("box-shadow", "0px 4px 10px rgba(0, 0, 0, 0.1)")
-                .set("text-align", "center")
-                .set("max-width", "400px")
-                .set("width", "100%");
+        VerticalLayout fieldsLayout = new VerticalLayout(nameLayout, usernameField, emailField);
+        fieldsLayout.setSpacing(false);
+        fieldsLayout.setPadding(false);
+        fieldsLayout.setWidthFull();
+        fieldsLayout.getStyle().set("gap", "12px");
 
-        VerticalLayout buttonLayout = new VerticalLayout(saveButton, deleteUserButton);
-        buttonLayout.setWidthFull();
+        VerticalLayout buttonLayout = new VerticalLayout(saveButton, deleteUserButton, changePasswordLink);
         buttonLayout.setAlignItems(Alignment.CENTER);
-        buttonLayout.getStyle().set("gap", "1px");
+        buttonLayout.setSpacing(true);
+        buttonLayout.setPadding(false);
 
+        Div card = new Div(title, fieldsLayout, buttonLayout);
+        card.getStyle()
+                .set("background", "#ffffff")
+                .set("padding", "32px")
+                .set("border-radius", "16px")
+                .set("box-shadow", "0 4px 20px rgba(0, 0, 0, 0.06)")
+                .set("width", "100%")
+                .set("max-width", "460px");
 
-        profileCard.add(title, nameLayout, usernameField, emailField, changePasswordLink, buttonLayout);
-
-        add(profileCard);
+        add(card);
     }
 
     /**

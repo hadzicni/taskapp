@@ -1,19 +1,23 @@
 package com.bbzbl.task.layout;
 
+import com.bbzbl.task.data.entity.User;
 import com.bbzbl.task.security.AuthenticatedUser;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
-import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.avatar.Avatar;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.*;
+import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.*;
-import com.vaadin.flow.component.sidenav.SideNav;
-import com.vaadin.flow.component.sidenav.SideNavItem;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Layout;
@@ -25,239 +29,146 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Main layout structure for authenticated and anonymous users.
- * Includes a navigation drawer, header with user info, and logout confirmation dialog.
- */
 @Layout
 @AnonymousAllowed
-public class MainLayout extends AppLayout implements BeforeEnterObserver {
+public class MainLayout extends AppLayout {
 
     private final AuthenticatedUser authenticatedUser;
     private Dialog logoutConfirmDialog;
     private H1 viewTitle;
 
-    /**
-     * Constructor for MainLayout.
-     *
-     * @param authenticatedUser the authenticated user
-     */
     public MainLayout(AuthenticatedUser authenticatedUser) {
         this.authenticatedUser = authenticatedUser;
 
         setPrimarySection(Section.NAVBAR);
         createLogoutConfirmationDialog();
-        addDrawerContent();
         addHeaderContent();
     }
 
-    /**
-     * Checks authentication before navigating to a route.
-     */
-    @Override
-    public void beforeEnter(BeforeEnterEvent event) {
-        if (authenticatedUser.get().isEmpty()) {
-            event.forwardTo("login");
-        }
-    }
-
-    /**
-     * After navigating to a view, update the page title.
-     */
     @Override
     protected void afterNavigation() {
         super.afterNavigation();
         viewTitle.setText(getCurrentPageTitle());
     }
 
-    /**
-     * Adds a header to the layout with a title and user profile information.
-     */
     private void addHeaderContent() {
-        DrawerToggle toggle = new DrawerToggle();
-        toggle.setAriaLabel("Menu toggle");
+        viewTitle = new H1("TaskApp");
+        viewTitle.addClassNames(LumoUtility.FontSize.XLARGE, LumoUtility.Margin.NONE);
+        viewTitle.getStyle()
+                .set("color", "#2c3e50")
+                .set("font-weight", "600");
 
-        viewTitle = new H1();
-        viewTitle.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
+        HorizontalLayout navLinks = createMenuLinks();
 
-        HorizontalLayout leftLayout = new HorizontalLayout(toggle, viewTitle);
-        leftLayout.setAlignItems(FlexComponent.Alignment.CENTER);
+        HorizontalLayout leftSection = new HorizontalLayout(viewTitle, navLinks);
+        leftSection.setAlignItems(FlexComponent.Alignment.CENTER);
+        leftSection.setSpacing(true);
+        leftSection.setFlexGrow(1, navLinks);
+        leftSection.getStyle().set("gap", "24px");
 
-        HorizontalLayout headerLayout = new HorizontalLayout(leftLayout, createProfileHeader());
-        headerLayout.setAlignItems(FlexComponent.Alignment.CENTER);
-        headerLayout.setWidthFull();
-        headerLayout.setPadding(true);
-        headerLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
-        headerLayout.getStyle()
-                .set("background", "#f8f9fa")
-                .set("padding", "10px 20px")
-                .set("box-shadow", "0px 4px 8px rgba(0, 0, 0, 0.1)");
-
-        addToNavbar(true, headerLayout);
-    }
-
-    /**
-     * Creates a profile header with user information or a login link.
-     *
-     * @return the profile header component
-     */
-    private Component createProfileHeader() {
-        return authenticatedUser.get()
-                .map(user -> {
-                    Avatar avatar = new Avatar(Optional.ofNullable(user.getFullName()).orElse("User"));
-                    avatar.getStyle()
-                            .set("border-radius", "50%")
-                            .set("border", "2px solid #007bff")
-                            .set("cursor", "pointer");
-
-                    Span userName = new Span(Optional.ofNullable(user.getFullName()).orElse("User"));
-                    userName.getStyle()
-                            .set("font-weight", "bold")
-                            .set("color", "#333")
-                            .set("margin-right", "4px");
-
-                    HorizontalLayout profileLayout = new HorizontalLayout(avatar, userName);
-                    profileLayout.setAlignItems(FlexComponent.Alignment.CENTER);
-
-                    Anchor profileLink = new Anchor("profile");
-                    profileLink.add(profileLayout);
-                    profileLink.getStyle().set("text-decoration", "none");
-
-                    return profileLink;
-                })
-                .orElseGet(this::createLoginLink);
-    }
-
-    private void addDrawerContent() {
-        Span appName = new Span("TaskApp");
-        appName.addClassNames(LumoUtility.FontWeight.BOLD, LumoUtility.FontSize.LARGE);
-        appName.getStyle().set("color", "#007bff");
-
-        Header header = new Header(appName);
+        HorizontalLayout header = new HorizontalLayout(leftSection, createProfileArea());
+        header.setAlignItems(FlexComponent.Alignment.CENTER);
+        header.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
+        header.setWidthFull();
+        header.setPadding(true);
         header.getStyle()
-                .set("padding", "15px")
-                .set("background", "#f8f9fa")
-                .set("border-bottom", "1px solid #e0e0e0");
+                .set("background", "linear-gradient(to right, #ffffff, #eef3fb)")
+                .set("box-shadow", "0 2px 10px rgba(0,0,0,0.04)")
+                .set("padding", "12px 32px")
+                .set("border-bottom", "1px solid #e0e0e0")
+                .set("flex-wrap", "wrap");
 
-        Scroller scroller = new Scroller(createNavigation());
-
-        addToDrawer(header, scroller, createFooter());
+        addToNavbar(true, header);
     }
 
-    /**
-     * Creates the navigation menu with items based on the MenuConfiguration.
-     *
-     * @return the navigation component
-     */
-    private SideNav createNavigation() {
-        SideNav nav = new SideNav();
+    private HorizontalLayout createMenuLinks() {
+        HorizontalLayout menu = new HorizontalLayout();
+        menu.setSpacing(true);
+        menu.getStyle().set("flex-wrap", "wrap");
+
         List<MenuEntry> menuEntries = MenuConfiguration.getMenuEntries();
 
         for (MenuEntry entry : menuEntries) {
-            SideNavItem item = (entry.icon() != null)
-                    ? new SideNavItem(entry.title(), entry.path(), new Icon(entry.icon()))
-                    : new SideNavItem(entry.title(), entry.path());
-
-            item.getStyle()
-                    .set("padding", "5px 5px")
+            Anchor link = new Anchor(entry.path(), entry.title());
+            link.getStyle()
+                    .set("color", "#34495e")
+                    .set("font-weight", "500")
+                    .set("text-decoration", "none")
+                    .set("padding", "8px 14px")
                     .set("border-radius", "8px")
-                    .set("transition", "0.3s ease-in-out");
+                    .set("transition", "background-color 0.2s, color 0.2s");
 
-            nav.addItem(item);
+            link.getElement().addEventListener("mouseover", e ->
+                    link.getStyle()
+                            .set("background-color", "#ecf5ff")
+                            .set("color", "#007bff"));
+
+            link.getElement().addEventListener("mouseout", e ->
+                    link.getStyle()
+                            .set("background-color", "")
+                            .set("color", "#34495e"));
+
+            menu.add(link);
         }
 
-        return nav;
+        return menu;
     }
 
-    /**
-     * Creates the footer with a logout confirmation dialog or login link.
-     *
-     * @return the footer component
-     */
-    private Footer createFooter() {
-        Footer footer = new Footer();
-        footer.getStyle()
-                .set("padding", "15px")
-                .set("background", "#f8f9fa")
-                .set("border-top", "1px solid #e0e0e0")
-                .set("display", "flex")
-                .set("justify-content", "center")
-                .set("align-items", "center");
+    private Component createProfileArea() {
+        return authenticatedUser.get()
+                .map(user -> {
+                    Avatar avatar = new Avatar(user.getFullName());
+                    avatar.getElement().setProperty("title", "Benutzermenü");
+                    avatar.getStyle()
+                            .set("border", "2px solid #007bff")
+                            .set("cursor", "pointer")
+                            .set("box-shadow", "0 2px 6px rgba(0,0,0,0.1)");
 
-        Component footerContent = authenticatedUser.get().isPresent()
-                ? createSignOutLayout()
-                : createLoginLink();
+                    ContextMenu menu = new ContextMenu(avatar);
+                    menu.setOpenOnClick(true);
+                    menu.addItem("Profil", e -> UI.getCurrent().navigate("profile"));
+                    menu.addItem("Abmelden", e -> logoutConfirmDialog.open());
 
-        footer.add(footerContent);
-        return footer;
+                    HorizontalLayout layout = new HorizontalLayout(avatar);
+                    layout.setAlignItems(FlexComponent.Alignment.CENTER);
+                    return layout;
+                })
+                .orElseGet(this::createLoginIcon);
     }
 
-    /**
-     * Creates a sign-out layout with an icon and text.
-     *
-     * @return the sign-out layout component
-     */
-    private Component createSignOutLayout() {
-        Icon signOutIcon = new Icon(VaadinIcon.SIGN_OUT);
-        signOutIcon.setSize("20px");
-
-        Span signOutText = new Span("Abmelden");
-        signOutText.getStyle().set("margin-left", "8px");
-
-        HorizontalLayout layout = new HorizontalLayout(signOutIcon, signOutText);
-        layout.setAlignItems(FlexComponent.Alignment.CENTER);
-        layout.getStyle()
+    private HorizontalLayout createLoginIcon() {
+        Icon loginIcon = new Icon(VaadinIcon.SIGN_IN);
+        loginIcon.setSize("22px");
+        loginIcon.getStyle()
+                .set("color", "#007bff")
                 .set("cursor", "pointer")
-                .set("color", "#dc3545")
-                .set("transition", "color 0.3s ease-in-out")
-                .set("padding", "8px");
+                .set("transition", "color 0.3s ease-in-out");
 
-        layout.getElement().addEventListener("mouseover", e ->
-                layout.getStyle().set("color", "#b02a37"));
-        layout.getElement().addEventListener("mouseout", e ->
-                layout.getStyle().set("color", "#dc3545"));
+        loginIcon.getElement().addEventListener("click", e -> UI.getCurrent().navigate("login"));
+        loginIcon.getElement().addEventListener("mouseover", e ->
+                loginIcon.getStyle().set("color", "#0056b3"));
+        loginIcon.getElement().addEventListener("mouseout", e ->
+                loginIcon.getStyle().set("color", "#007bff"));
 
-        layout.addClickListener(e -> logoutConfirmDialog.open());
-
+        HorizontalLayout layout = new HorizontalLayout(loginIcon);
+        layout.setAlignItems(FlexComponent.Alignment.CENTER);
         return layout;
     }
 
-    /**
-     * Creates a login link for anonymous users.
-     *
-     * @return the login link component
-     */
-    private Anchor createLoginLink() {
-        Anchor loginLink = new Anchor("login", "Anmelden");
-        loginLink.getStyle()
-                .set("font-weight", "600")
-                .set("color", "#007bff")
-                .set("text-decoration", "none")
-                .set("transition", "color 0.3s ease-in-out");
-
-        loginLink.getElement().addEventListener("mouseover", e ->
-                loginLink.getStyle().set("color", "#0056b3"));
-        loginLink.getElement().addEventListener("mouseout", e ->
-                loginLink.getStyle().set("color", "#007bff"));
-
-        return loginLink;
-    }
-
-    /**
-     * Creates a logout confirmation dialog.
-     */
     private void createLogoutConfirmationDialog() {
         logoutConfirmDialog = new Dialog();
         logoutConfirmDialog.setHeaderTitle("Abmelden");
 
-        Paragraph confirmationText = new Paragraph("Sind Sie sich sicher dass Sie sich abmelden möchten?");
+        Paragraph confirmationText = new Paragraph("Möchten Sie sich wirklich abmelden?");
         Button cancelButton = new Button("Abbrechen", e -> logoutConfirmDialog.close());
         cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 
-        Button logoutButton = new Button("Abmelden", e -> {
+        Button logoutButton = new Button("Abmelden");
+        logoutButton.addClickListener(e -> {
             logoutConfirmDialog.close();
-            authenticatedUser.logout();
+            UI.getCurrent().navigate("logout");
         });
+
         logoutButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
 
         HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, logoutButton);
@@ -272,11 +183,6 @@ public class MainLayout extends AppLayout implements BeforeEnterObserver {
         logoutConfirmDialog.add(layout);
     }
 
-    /**
-     * Retrieves the current page title from the MenuConfiguration.
-     *
-     * @return the current page title
-     */
     private String getCurrentPageTitle() {
         return MenuConfiguration.getPageHeader(getContent()).orElse("");
     }
