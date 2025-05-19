@@ -1,4 +1,4 @@
-# ✅ TaskApp – Vaadin & Spring Boot
+# ✅ TaskApp
 
 A modern and fully functional **task management web application** built with **Vaadin 24** and **Spring Boot**. Offers user registration, login/logout, personal task tracking, Kanban-style management, and a clean UI — all with secure authentication and role-based access.
 
