@@ -4,7 +4,7 @@ A modern and fully functional **task management web application** built with **V
 
 ![Vaadin](https://img.shields.io/badge/Vaadin-24-blue?logo=vaadin)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-green?logo=springboot)
-![License](https://img.shields.io/badge/license-MIT-green)
+![License](https://img.shields.io/badge/license-Apache--2.0-blue)
 ![Java](https://img.shields.io/badge/Java-21+-orange)
 
 ---
