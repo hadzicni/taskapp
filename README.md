@@ -5,7 +5,7 @@ A modern and fully functional **task management web application** built with **V
 ![Vaadin](https://img.shields.io/badge/Vaadin-24-blue?logo=vaadin)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-green?logo=springboot)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Java](https://img.shields.io/badge/Java-17+-orange)
+![Java](https://img.shields.io/badge/Java-21+-orange)
 
 ---
 
@@ -27,7 +27,7 @@ A modern and fully functional **task management web application** built with **V
 
 ### Prerequisites
 
-- Java 17+
+- Java 21+
 - Maven 3.8+
 - Node.js (for frontend build, optional)
 - IDE: IntelliJ / Eclipse / VS Code
