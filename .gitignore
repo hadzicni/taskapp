@@ -1,4 +1,3 @@
-HELP.md
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
@@ -31,3 +30,18 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Vaadin generated frontend files
+/frontend/generated/
+/node_modules/
+/package-lock.json
+/pnpm-lock.yaml
+/.npm/
+/.npmrc
+/.nvmrc
+/.vaadin/
+
+# Vite / Webpack / Dev Server Cache
+/.vite/
+vite.config.ts
+webpack.generated.js
