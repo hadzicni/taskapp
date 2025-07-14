@@ -2,6 +2,8 @@
 /target/
 !.mvn/wrapper/maven-wrapper.jar
 
+*.db
+
 # IDEs
 ## STS / Eclipse
 .apt_generated
@@ -29,7 +31,7 @@
 .vscode/
 
 # Vaadin: generated frontend + tooling
-/frontend/generated/
+src/main/frontend/generated/
 /node_modules/
 /package-lock.json
 /pnpm-lock.yaml
